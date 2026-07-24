@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lucky Race ― 確率挑戦型ランキングサイト</title>
+<meta name="description" content="確率は裏切らない。裏切るのは、いつも人間の感覚だ。設定した確率を引くまでの回数を競う、確率レース特化型Webサービス。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="rail-noise" aria-hidden="true"></div>
+
+<div class="app">
+
+  <!-- ============ HEADER ============ -->
+  <header class="site-header">
+    <div class="brand">
+      <span class="brand-eyebrow">確率挑戦型ランキングサイト</span>
+      <h1 class="brand-title">Lucky Race</h1>
+      <p class="brand-tagline">確率は裏切らない。裏切るのは、いつも人間の<em>“感覚”</em>だ。</p>
+    </div>
+    <nav class="main-nav" role="tablist" aria-label="メインメニュー">
+      <button class="nav-btn is-active" data-view="play" role="tab" aria-selected="true">PLAY</button>
+      <button class="nav-btn" data-view="stage" role="tab" aria-selected="false">STAGE</button>
+      <button class="nav-btn" data-view="ranking" role="tab" aria-selected="false">RANKING</button>
+    </nav>
+  </header>
+
+  <div class="layout">
+    <main class="main-col">
+
+      <!-- ============ PLAY VIEW ============ -->
+      <section id="view-play" class="view is-active" aria-labelledby="tab-play">
+
+        <!-- signature: race track readout -->
+        <div class="track-panel">
+          <div class="track-rail">
+            <div class="track-tick" style="left:0%"></div>
+            <div class="track-tick" style="left:25%"></div>
+            <div class="track-tick" style="left:50%"></div>
+            <div class="track-tick" style="left:75%"></div>
+            <div class="track-finish">
+              <svg viewBox="0 0 24 24" class="finish-flag"><path d="M4 2v20M4 3h14l-3 3.5L18 10H4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="track-runner" id="runner">
+              <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="17"/><path d="M20 10v10l7 5" fill="none" stroke="#0B1F3A" stroke-width="2.4" stroke-linecap="round"/></svg>
+            </div>
+            <div class="track-burst" id="track-burst"></div>
+          </div>
+          <div class="track-readout">
+            <div class="readout-item">
+              <span class="readout-label">TRIAL 挑戦回数</span>
+              <span class="readout-value" id="attempt-count">0</span>
+            </div>
+            <div class="readout-item">
+              <span class="readout-label">ODDS 確率</span>
+              <span class="readout-value" id="current-odds">1 / 2</span>
+            </div>
+            <div class="readout-item">
+              <span class="readout-label">BEST 自己ベスト</span>
+              <span class="readout-value" id="best-count">—</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- game select -->
+        <div class="game-select" id="game-select" role="tablist" aria-label="ゲームを選ぶ">
+          <button class="game-card is-active" data-game="coin" role="tab" aria-selected="true">
+            <svg viewBox="0 0 48 48" class="game-icon"><circle cx="24" cy="24" r="18" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="24" cy="24" r="12" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
+            <span class="game-name">メダル<br><small>MEDAL FLIP</small></span>
+            <span class="game-desc">枚数で変わる、表裏の確率</span>
+          </button>
+          <button class="game-card" data-game="dice" role="tab" aria-selected="false">
+            <svg viewBox="0 0 48 48" class="game-icon"><rect x="8" y="8" width="32" height="32" rx="6" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="18" cy="18" r="2.4" fill="currentColor"/><circle cx="30" cy="30" r="2.4" fill="currentColor"/><circle cx="24" cy="24" r="2.4" fill="currentColor"/></svg>
+            <span class="game-name">サイコロ<br><small>DICE ROLL</small></span>
+            <span class="game-desc">面数で変わる、一点狙いの確率</span>
+          </button>
+          <button class="game-card" data-game="slot" role="tab" aria-selected="false">
+            <svg viewBox="0 0 48 48" class="game-icon"><rect x="6" y="12" width="10" height="24" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="19" y="12" width="10" height="24" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="32" y="12" width="10" height="24" rx="2" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+            <span class="game-name">スロット<br><small>SLOT REEL</small></span>
+            <span class="game-desc">絵柄の種類で変わる、揃う確率</span>
+          </button>
+          <button class="game-card" data-game="password" role="tab" aria-selected="false">
+            <svg viewBox="0 0 48 48" class="game-icon"><rect x="6" y="18" width="36" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M16 18v-4a8 8 0 0116 0v4" fill="none" stroke="currentColor" stroke-width="2.4"/></svg>
+            <span class="game-name">数字パスワード<br><small>DIGIT LOCK</small></span>
+            <span class="game-desc">桁数で変わる、的中の確率</span>
+          </button>
+        </div>
+
+        <!-- dynamic stage for chosen game -->
+        <div class="game-stage" id="game-stage"></div>
+
+        <!-- controls -->
+        <div class="controls">
+          <button id="btn-draw" class="btn btn-primary">
+            <span class="btn-label">挑戦する</span>
+          </button>
+          <button id="btn-auto" class="btn btn-secondary">
+            <span class="btn-label">オート回転 ▶</span>
+          </button>
+          <div class="auto-speed" id="auto-speed-wrap">
+            <label for="auto-speed">SPEED</label>
+            <input type="range" id="auto-speed" min="1" max="4" value="2" step="1">
+            <span id="auto-speed-label">標準</span>
+          </div>
+          <button id="btn-reset" class="btn btn-ghost" title="この設定の回数をリセット">リセット</button>
+        </div>
+
+        <div class="result-banner" id="result-banner" aria-live="polite"></div>
+      </section>
+
+      <!-- ============ STAGE VIEW ============ -->
+      <section id="view-stage" class="view" aria-labelledby="tab-stage">
+        <div class="section-head">
+          <span class="section-eyebrow">STAGE SELECT</span>
+          <h2>確率ステージ</h2>
+          <p>Lucky Race の特徴は、確率を“ステージ化”できること。挑みたい確率帯を選んで、そのままPLAYへ。</p>
+        </div>
+        <div class="stage-grid" id="stage-grid"></div>
+      </section>
+
+      <!-- ============ RANKING VIEW ============ -->
+      <section id="view-ranking" class="view" aria-labelledby="tab-ranking">
+        <div class="section-head">
+          <span class="section-eyebrow">RECORD BOOK</span>
+          <h2>オンラインランキング</h2>
+          <p>記録はこの端末に保存されます。同じ確率・違うシチュでも、それぞれ個別の記録として並びます。</p>
+        </div>
+        <div class="ranking-toolbar">
+          <select id="ranking-filter">
+            <option value="all">すべてのゲーム</option>
+            <option value="coin">メダル</option>
+            <option value="dice">サイコロ</option>
+            <option value="slot">スロット</option>
+            <option value="password">数字パスワード</option>
+          </select>
+          <select id="ranking-sort">
+            <option value="best">回数が少ない順</option>
+            <option value="recent">新しい順</option>
+          </select>
+          <button id="btn-clear-ranking" class="btn btn-ghost btn-small">記録を全消去</button>
+        </div>
+        <div class="ranking-table-wrap">
+          <table class="ranking-table" id="ranking-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>ゲーム</th>
+                <th>シチュエーション</th>
+                <th>確率</th>
+                <th>到達回数</th>
+                <th>日付</th>
+              </tr>
+            </thead>
+            <tbody id="ranking-body"></tbody>
+          </table>
+          <p class="ranking-empty" id="ranking-empty">まだ記録がありません。PLAYで最初の一勝を刻みましょう。</p>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ============ SIDEBAR ============ -->
+    <aside class="sidebar">
+      <div class="side-card">
+        <span class="side-eyebrow">AUTHOR</span>
+        <p class="side-title">作者をフォロー</p>
+        <a class="side-link" href="https://x.com/utoutonek0" target="_blank" rel="noopener">
+          <span>X (Twitter)</span><span class="side-arrow">→</span>
+        </a>
+        <a class="side-link" href="https://www.youtube.com/@utoutoneko" target="_blank" rel="noopener">
+          <span>YouTube</span><span class="side-arrow">→</span>
+        </a>
+      </div>
+
+      <div class="side-card">
+        <span class="side-eyebrow">MORE GAMES</span>
+        <p class="side-title">自作ゲームも遊んでみる</p>
+        <a class="side-game" href="https://utoutoneko.github.io/CosmoGenesis/" target="_blank" rel="noopener">
+          <span class="side-game-name">CosmoGenesis</span>
+          <span class="side-game-desc">太陽系を育てるクリッカー</span>
+        </a>
+        <a class="side-game" href="https://utoutoneko.github.io/cybersyndrome/" target="_blank" rel="noopener">
+          <span class="side-game-name">cybersyndrome</span>
+          <span class="side-game-desc">謎解きアドベンチャー</span>
+        </a>
+        <a class="side-game" href="https://utoutoneko.github.io/mathbarrethell/" target="_blank" rel="noopener">
+          <span class="side-game-name">mathbarrethell</span>
+          <span class="side-game-desc">関数で軌道を操る弾幕</span>
+        </a>
+        <a class="side-game" href="https://piyoadventure.base44.app/" target="_blank" rel="noopener">
+          <span class="side-game-name">piyoadventure</span>
+          <span class="side-game-desc">ひよこの横スクロール冒険</span>
+        </a>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="site-footer">
+    <span>© <span id="year"></span> Lucky Race — 「運を競う」という新しい文化を作るWebサービスへ。</span>
+  </footer>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
